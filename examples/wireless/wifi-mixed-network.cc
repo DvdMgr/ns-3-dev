@@ -37,6 +37,8 @@
 #include "ns3/packet-sink-helper.h"
 #include "ns3/packet-sink.h"
 #include "ns3/ht-configuration.h"
+#include "ns3/multi-model-spectrum-channel.h"
+#include "ns3/spectrum-wifi-helper.h"
 
 // This example shows how to configure mixed networks (i.e. mixed b/g and HT/non-HT) and how are performance in several scenarios.
 //
@@ -136,11 +138,19 @@ Experiment::Run (Parameters params)
   NodeContainer wifiApNode;
   wifiApNode.Create (1);
 
-  YansWifiChannelHelper channel = YansWifiChannelHelper::Default ();
-  channel.AddPropagationLoss ("ns3::RangePropagationLossModel");
+  // YansWifiChannelHelper channel = YansWifiChannelHelper::Default ();
+  // channel.AddPropagationLoss ("ns3::RangePropagationLossModel");
 
-  YansWifiPhyHelper phy;
-  phy.SetChannel (channel.Create ());
+  // YansWifiPhyHelper phy;
+  // phy.SetChannel (channel.Create ());
+
+  Ptr<MultiModelSpectrumChannel> spectrumChannel = CreateObject<MultiModelSpectrumChannel> ();
+  Ptr<FriisPropagationLossModel> lossModel = CreateObject<FriisPropagationLossModel> ();
+  spectrumChannel->AddPropagationLossModel (lossModel);
+  Ptr<ConstantSpeedPropagationDelayModel> delayModel = CreateObject<ConstantSpeedPropagationDelayModel> ();
+  spectrumChannel->SetPropagationDelayModel (delayModel);
+  SpectrumWifiPhyHelper phy;
+  phy.SetChannel(spectrumChannel);
 
   WifiHelper wifi;
   wifi.SetRemoteStationManager ("ns3::IdealWifiManager");
@@ -365,127 +375,129 @@ int main (int argc, char *argv[])
   Experiment experiment;
   double throughput = 0;
 
-  params.testName = "g only with all g features disabled";
-  throughput = experiment.Run (params);
-  if (verifyResults && (throughput < 22.5 || throughput > 23.5))
-    {
-      NS_LOG_ERROR ("Obtained throughput " << throughput << " is not in the expected boundaries!");
-      exit (1);
-    }
-  std::cout << "Throughput: " << throughput << " Mbit/s \n" << std::endl;
+  // These commented lines perform experiments we are not interested in
+  // params.testName = "g only with all g features disabled";
+  // throughput = experiment.Run (params);
+  // if (verifyResults && (throughput < 22.5 || throughput > 23.5))
+  //   {
+  //     NS_LOG_ERROR ("Obtained throughput " << throughput << " is not in the expected boundaries!");
+  //     exit (1);
+  //   }
+  // std::cout << "Throughput: " << throughput << " Mbit/s \n" << std::endl;
 
-  params.testName = "g only with short slot time enabled";
-  params.enableErpProtection = false;
-  params.enableShortSlotTime = true;
-  params.enableShortPhyPreamble = false;
-  params.nWifiB = 0;
-  throughput = experiment.Run (params);
-  if (verifyResults && (throughput < 29 || throughput > 30))
-    {
-      NS_LOG_ERROR ("Obtained throughput " << throughput << " is not in the expected boundaries!");
-      exit (1);
-    }
-  std::cout << "Throughput: " << throughput << " Mbit/s \n" << std::endl;
+  // params.testName = "g only with short slot time enabled";
+  // params.enableErpProtection = false;
+  // params.enableShortSlotTime = true;
+  // params.enableShortPhyPreamble = false;
+  // params.nWifiB = 0;
+  // throughput = experiment.Run (params);
+  // if (verifyResults && (throughput < 29 || throughput > 30))
+  //   {
+  //     NS_LOG_ERROR ("Obtained throughput " << throughput << " is not in the expected boundaries!");
+  //     exit (1);
+  //   }
+  // std::cout << "Throughput: " << throughput << " Mbit/s \n" << std::endl;
 
-  params.testName = "Mixed b/g with all g features disabled";
-  params.enableErpProtection = false;
-  params.enableShortSlotTime = false;
-  params.enableShortPhyPreamble = false;
-  params.nWifiB = 1;
-  throughput = experiment.Run (params);
-  if (verifyResults && (throughput < 22.5 || throughput > 23.5))
-    {
-      NS_LOG_ERROR ("Obtained throughput " << throughput << " is not in the expected boundaries!");
-      exit (1);
-    }
-  std::cout << "Throughput: " << throughput << " Mbit/s \n" << std::endl;
+  // params.testName = "Mixed b/g with all g features disabled";
+  // params.enableErpProtection = false;
+  // params.enableShortSlotTime = false;
+  // params.enableShortPhyPreamble = false;
+  // params.nWifiB = 1;
+  // throughput = experiment.Run (params);
+  // if (verifyResults && (throughput < 22.5 || throughput > 23.5))
+  //   {
+  //     NS_LOG_ERROR ("Obtained throughput " << throughput << " is not in the expected boundaries!");
+  //     exit (1);
+  //   }
+  // std::cout << "Throughput: " << throughput << " Mbit/s \n" << std::endl;
 
-  params.testName = "Mixed b/g with short plcp preamble enabled";
-  params.enableErpProtection = false;
-  params.enableShortSlotTime = false;
-  params.enableShortPhyPreamble = true;
-  params.nWifiB = 1;
-  throughput = experiment.Run (params);
-  if (verifyResults && (throughput < 22.5 || throughput > 23.5))
-    {
-      NS_LOG_ERROR ("Obtained throughput " << throughput << " is not in the expected boundaries!");
-      exit (1);
-    }
-  std::cout << "Throughput: " << throughput << " Mbit/s \n" << std::endl;
+  // params.testName = "Mixed b/g with short plcp preamble enabled";
+  // params.enableErpProtection = false;
+  // params.enableShortSlotTime = false;
+  // params.enableShortPhyPreamble = true;
+  // params.nWifiB = 1;
+  // throughput = experiment.Run (params);
+  // if (verifyResults && (throughput < 22.5 || throughput > 23.5))
+  //   {
+  //     NS_LOG_ERROR ("Obtained throughput " << throughput << " is not in the expected boundaries!");
+  //     exit (1);
+  //   }
+  // std::cout << "Throughput: " << throughput << " Mbit/s \n" << std::endl;
 
-  params.testName = "Mixed b/g with short slot time enabled using RTS-CTS protection";
-  params.enableErpProtection = true;
-  params.erpProtectionMode = "Rts-Cts";
-  params.enableShortSlotTime = false;
-  params.enableShortPhyPreamble = false;
-  params.nWifiB = 1;
-  throughput = experiment.Run (params);
-  if (verifyResults && (throughput < 19 || throughput > 20))
-    {
-      NS_LOG_ERROR ("Obtained throughput " << throughput << " is not in the expected boundaries!");
-      exit (1);
-    }
-  std::cout << "Throughput: " << throughput << " Mbit/s \n" << std::endl;
+  // params.testName = "Mixed b/g with short slot time enabled using RTS-CTS protection";
+  // params.enableErpProtection = true;
+  // params.erpProtectionMode = "Rts-Cts";
+  // params.enableShortSlotTime = false;
+  // params.enableShortPhyPreamble = false;
+  // params.nWifiB = 1;
+  // throughput = experiment.Run (params);
+  // if (verifyResults && (throughput < 19 || throughput > 20))
+  //   {
+  //     NS_LOG_ERROR ("Obtained throughput " << throughput << " is not in the expected boundaries!");
+  //     exit (1);
+  //   }
+  // std::cout << "Throughput: " << throughput << " Mbit/s \n" << std::endl;
 
-  params.testName = "Mixed b/g with short plcp preamble enabled using RTS-CTS protection";
-  params.enableErpProtection = true;
-  params.enableShortSlotTime = false;
-  params.enableShortPhyPreamble = true;
-  params.nWifiB = 1;
-  throughput = experiment.Run (params);
-  if (verifyResults && (throughput < 19 || throughput > 20))
-    {
-      NS_LOG_ERROR ("Obtained throughput " << throughput << " is not in the expected boundaries!");
-      exit (1);
-    }
-  std::cout << "Throughput: " << throughput << " Mbit/s \n" << std::endl;
+  // params.testName = "Mixed b/g with short plcp preamble enabled using RTS-CTS protection";
+  // params.enableErpProtection = true;
+  // params.enableShortSlotTime = false;
+  // params.enableShortPhyPreamble = true;
+  // params.nWifiB = 1;
+  // throughput = experiment.Run (params);
+  // if (verifyResults && (throughput < 19 || throughput > 20))
+  //   {
+  //     NS_LOG_ERROR ("Obtained throughput " << throughput << " is not in the expected boundaries!");
+  //     exit (1);
+  //   }
+  // std::cout << "Throughput: " << throughput << " Mbit/s \n" << std::endl;
 
-  params.testName = "Mixed b/g with short slot time enabled using CTS-TO-SELF protection";
-  params.enableErpProtection = true;
-  params.erpProtectionMode = "Cts-To-Self";
-  params.enableShortSlotTime = false;
-  params.enableShortPhyPreamble = false;
-  params.nWifiB = 1;
-  throughput = experiment.Run (params);
-  if (verifyResults && (throughput < 20.5 || throughput > 21.5))
-    {
-      NS_LOG_ERROR ("Obtained throughput " << throughput << " is not in the expected boundaries!");
-      exit (1);
-    }
-  std::cout << "Throughput: " << throughput << " Mbit/s \n" << std::endl;
+  // params.testName = "Mixed b/g with short slot time enabled using CTS-TO-SELF protection";
+  // params.enableErpProtection = true;
+  // params.erpProtectionMode = "Cts-To-Self";
+  // params.enableShortSlotTime = false;
+  // params.enableShortPhyPreamble = false;
+  // params.nWifiB = 1;
+  // throughput = experiment.Run (params);
+  // if (verifyResults && (throughput < 20.5 || throughput > 21.5))
+  //   {
+  //     NS_LOG_ERROR ("Obtained throughput " << throughput << " is not in the expected boundaries!");
+  //     exit (1);
+  //   }
+  // std::cout << "Throughput: " << throughput << " Mbit/s \n" << std::endl;
 
-  params.testName = "Mixed b/g with short plcp preamble enabled using CTS-TO-SELF protection";
-  params.enableErpProtection = true;
-  params.enableShortSlotTime = false;
-  params.enableShortPhyPreamble = true;
-  params.nWifiB = 1;
-  throughput = experiment.Run (params);
-  if (verifyResults && (throughput < 20.5 || throughput > 21.5))
-    {
-      NS_LOG_ERROR ("Obtained throughput " << throughput << " is not in the expected boundaries!");
-      exit (1);
-    }
-  std::cout << "Throughput: " << throughput << " Mbit/s \n" << std::endl;
+  // params.testName = "Mixed b/g with short plcp preamble enabled using CTS-TO-SELF protection";
+  // params.enableErpProtection = true;
+  // params.enableShortSlotTime = false;
+  // params.enableShortPhyPreamble = true;
+  // params.nWifiB = 1;
+  // throughput = experiment.Run (params);
+  // if (verifyResults && (throughput < 20.5 || throughput > 21.5))
+  //   {
+  //     NS_LOG_ERROR ("Obtained throughput " << throughput << " is not in the expected boundaries!");
+  //     exit (1);
+  //   }
+  // std::cout << "Throughput: " << throughput << " Mbit/s \n" << std::endl;
 
-  params.testName = "HT only";
-  params.enableErpProtection = false;
-  params.enableShortSlotTime = false;
-  params.enableShortPhyPreamble = false;
-  params.apType = WIFI_STANDARD_80211n_2_4GHZ;
-  params.nWifiB = 0;
-  params.bHasTraffic = false;
-  params.nWifiG = 0;
-  params.gHasTraffic = false;
-  params.nWifiN = 1;
-  params.nHasTraffic = true;
-  throughput = experiment.Run (params);
-  if (verifyResults && (throughput < 44 || throughput > 45))
-    {
-      NS_LOG_ERROR ("Obtained throughput " << throughput << " is not in the expected boundaries!");
-      exit (1);
-    }
-  std::cout << "Throughput: " << throughput << " Mbit/s \n" << std::endl;
+  // params.testName = "HT only";
+  // params.enableErpProtection = false;
+  // params.enableShortSlotTime = false;
+  // params.enableShortPhyPreamble = false;
+  // params.apType = WIFI_STANDARD_80211n_2_4GHZ;
+  // params.nWifiB = 0;
+  // params.bHasTraffic = false;
+  // params.nWifiG = 0;
+  // params.gHasTraffic = false;
+  // params.nWifiN = 1;
+  // params.nHasTraffic = true;
+  // throughput = experiment.Run (params);
+  // if (verifyResults && (throughput < 44 || throughput > 45))
+  //   {
+  //     NS_LOG_ERROR ("Obtained throughput " << throughput << " is not in the expected boundaries!");
+  //     exit (1);
+  //   }
+  // std::cout << "Throughput: " << throughput << " Mbit/s \n" << std::endl;
 
+  // This experiment crashes
   params.testName = "Mixed HT/non-HT";
   params.enableErpProtection = false;
   params.enableShortSlotTime = false;
